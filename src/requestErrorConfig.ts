@@ -89,8 +89,14 @@ export const errorConfig: RequestConfig = {
   requestInterceptors: [
     (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
-      const url = config?.url?.concat('?token = 123');
-      return { ...config, url };
+      if ('localStorage' in global) {
+          const token = localStorage.getItem('token');
+          config.headers = {
+              ...config.headers,
+              Authorization: `Bearer ${token}`,
+          }
+      }
+      return { ...config };
     },
   ],
 

@@ -3,6 +3,8 @@
 
 declare namespace API {
   type CurrentUser = {
+    id?: number;
+    username?: string;
     name?: string;
     avatar?: string;
     userid?: string;
@@ -21,12 +23,16 @@ declare namespace API {
     };
     address?: string;
     phone?: string;
+    menus?: array;
   };
 
   type LoginResult = {
-    status?: string;
-    type?: string;
-    currentAuthority?: string;
+    code?: number;
+    data?: array | { [key: string]: any };
+    message?: string;
+    timestamp?: number;
+    // status?: string;
+    // currentAuthority?: string;
   };
 
   type PageParams = {
@@ -98,4 +104,14 @@ declare namespace API {
     description?: string;
     type?: NoticeIconItemType;
   };
+
+  type Menu = {
+    id: number;
+    name?: string;
+    icon?: string;
+    path?: string;
+    component?: string;
+    children?: Menu[];
+    parent?: Menu;
+  }
 }
