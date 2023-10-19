@@ -40,14 +40,15 @@ export default [
     icon: 'crown',
     // access: 'canAdmin',
     routes: [
-      // {
-      //   path: '/admin',
-      //   redirect: '/admin/sub-page',
-      // },
       {
         path: '/admin/sub-page',
         name: 'sub-page',
         component: './Admin',
+      },
+      {
+        path: '/admin/menus',
+        name: 'menus',
+        component: './Admin/Menu',
       },
     ],
   },

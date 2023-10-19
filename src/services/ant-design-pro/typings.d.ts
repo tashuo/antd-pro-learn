@@ -107,7 +107,9 @@ declare namespace API {
 
   type Menu = {
     id: number;
+    key?: string;
     name?: string;
+    title?: string;
     icon?: string;
     path?: string;
     component?: string;

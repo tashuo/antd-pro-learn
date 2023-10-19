@@ -1,45 +1,31 @@
 import React, { useState } from 'react';
 import { Tree } from 'antd';
 import type { DataNode, TreeProps } from 'antd/es/tree';
+import { getAllMenus } from '@/services/ant-design-pro/menu';
+import { useRequest } from '@umijs/max';
+import { isNil } from 'lodash';
 
-const x = 3;
-const y = 2;
-const z = 1;
-const defaultData: DataNode[] = [];
-
-const generateData = (_level: number, _preKey?: React.Key, _tns?: DataNode[]) => {
-  const preKey = _preKey || '0';
-  const tns = _tns || defaultData;
-
-  const children: React.Key[] = [];
-  for (let i = 0; i < x; i++) {
-    const key = `${preKey}-${i}`;
-    tns.push({ title: key, key });
-    if (i < y) {
-      children.push(key);
-    }
-  }
-  if (_level < 0) {
-    return tns;
-  }
-  const level = _level - 1;
-  children.forEach((key, index) => {
-    tns[index].children = [];
-    return generateData(level, key, tns[index].children);
-  });
-};
-generateData(z);
+const transTreeData = (menus: API.Menu[]): DataNode[] => {
+    return menus.map((v: API.Menu) => {
+      v.title = v.name;
+      v.key = v.id.toString();
+      if (!isNil(v.children) && v.children.length > 0) {
+        v.children = transTreeData(v.children) as API.Menu[];
+      }
+      return v as DataNode;
+    })
+}
 
 const Menu: React.FC = () => {
-  const [gData, setGData] = useState(defaultData);
-  const [expandedKeys] = useState(['0-0', '0-0-0', '0-0-0-0']);
-
-  const onDragEnter: TreeProps['onDragEnter'] = (info) => {
-    console.log(info);
-    // expandedKeys, set it when controlled is needed
-    // setExpandedKeys(info.expandedKeys)
-  };
-
+  const [treeData, setTreeData] = useState<DataNode[]>([]);
+  useRequest(() => {
+    return getAllMenus();
+  }, {
+    onSuccess: (data) => {
+      setTreeData(transTreeData(data));
+    }
+  })
+  
   const onDrop: TreeProps['onDrop'] = (info) => {
     console.log(info);
     const dropKey = info.node.key;
@@ -61,18 +47,18 @@ const Menu: React.FC = () => {
         }
       }
     };
-    const data = [...gData];
+    const menus = treeData as unknown as DataNode[];
 
     // Find dragObject
     let dragObj: DataNode;
-    loop(data, dragKey, (item, index, arr) => {
+    loop(menus, dragKey, (item, index, arr) => {
       arr.splice(index, 1);
       dragObj = item;
     });
 
     if (!info.dropToGap) {
       // Drop on the content
-      loop(data, dropKey, (item) => {
+      loop(menus, dropKey, (item) => {
         item.children = item.children || [];
         // where to insert. New item was inserted to the start of the array in this example, but can be anywhere
         item.children.unshift(dragObj);
@@ -82,7 +68,7 @@ const Menu: React.FC = () => {
       (info.node as any).props.expanded && // Is expanded
       dropPosition === 1 // On the bottom gap
     ) {
-      loop(data, dropKey, (item) => {
+      loop(menus, dropKey, (item) => {
         item.children = item.children || [];
         // where to insert. New item was inserted to the start of the array in this example, but can be anywhere
         item.children.unshift(dragObj);
@@ -92,7 +78,7 @@ const Menu: React.FC = () => {
     } else {
       let ar: DataNode[] = [];
       let i: number;
-      loop(data, dropKey, (_item, index, arr) => {
+      loop(menus, dropKey, (_item, index, arr) => {
         ar = arr;
         i = index;
       });
@@ -102,18 +88,17 @@ const Menu: React.FC = () => {
         ar.splice(i! + 1, 0, dragObj!);
       }
     }
-    setGData(data);
+    console.log(menus)
+    setTreeData(menus)
   };
 
   return (
     <Tree
       className="draggable-tree"
-      defaultExpandedKeys={expandedKeys}
       draggable
       blockNode
-      onDragEnter={onDragEnter}
       onDrop={onDrop}
-      treeData={gData}
+      treeData={treeData}
     />
   );
 };
