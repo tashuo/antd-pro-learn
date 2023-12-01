@@ -32,6 +32,50 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
   });
 }
 
+export async function users(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  const orderBy = Object.keys(options || {})[0];
+  const orderByAsc = options && orderBy ? options[orderBy] === 'ascend' : undefined;
+  return request<API.RuleList>('/api/admin/users', {
+    method: 'GET',
+    params: {
+      ...params,
+      orderBy,
+      orderByAsc,
+    },
+  });
+}
+
+export async function posts(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  const orderBy = Object.keys(options || {})[0];
+  const orderByAsc = options && orderBy ? options[orderBy] === 'ascend' : undefined;
+  return request<API.RuleList>('/api/admin/posts', {
+    method: 'GET',
+    params: {
+      ...params,
+      orderBy,
+      orderByAsc,
+    },
+  });
+}
+
 /** 此处后端没有提供注释 GET /api/notices */
 export async function getNotices(options?: { [key: string]: any }) {
   return request<API.NoticeIconList>('/api/notices', {

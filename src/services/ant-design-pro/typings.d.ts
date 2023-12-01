@@ -115,5 +115,23 @@ declare namespace API {
     component?: string;
     children?: Menu[];
     parent?: Menu;
-  }
+  };
+
+  type Permission = {
+    id: number;
+    slug: string;
+    name: string;
+    http_method: string;
+    http_path: string;
+    children?: Permissions[];
+    parent?: Permission;
+  };
+
+  type Role = {
+    id: number;
+    slug: string;
+    name: string;
+    menus?: Menu[];
+    permissions: Permission[];
+  };
 }

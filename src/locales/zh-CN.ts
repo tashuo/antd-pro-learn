@@ -5,6 +5,8 @@ import pages from './zh-CN/pages';
 import pwa from './zh-CN/pwa';
 import settingDrawer from './zh-CN/settingDrawer';
 import settings from './zh-CN/settings';
+import user from './zh-CN/user';
+import post from './zh-CN/post';
 
 export default {
   'navBar.lang': '语言',
@@ -22,4 +24,6 @@ export default {
   ...settings,
   ...pwa,
   ...component,
+  ...user,
+  ...post,
 };

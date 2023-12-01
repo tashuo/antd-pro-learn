@@ -6,7 +6,7 @@ import { request } from '@umijs/max';
 export async function getAllMenus() {
   return request<{
     data: API.Menu[];
-  }>('/api/admin/allMenus', {
+  }>('/api/admin/menu', {
     method: 'GET',
   });
 }
@@ -21,18 +21,22 @@ export async function addMenu(options: API.Menu) {
 
 /** 更新菜单 PATCH /api/admin/menu/:id */
 export async function updateMenu(options: API.Menu) {
-    return request<Record<string, any>>(`/api/admin/menu/${options.id}`, {
-      method: 'PATCH',
-      ...options,
-    });
+  return request<Record<string, any>>(`/api/admin/menu/${options.id}`, {
+    method: 'PATCH',
+    ...options,
+  });
 }
 
 /** 更新排序全部菜单 POST /api/admin/menu/order */
-export async function updateMenusOrder(options: API.Menu[]) {
-    return request<Record<string, any>>(`/api/admin/menu/order`, {
-      method: 'POST',
-      ...options,
-    });
+export async function updateMenusOrder(menus: API.Menu[], options?: { [key: string]: any }) {
+  return request<Record<string, any>>(`/api/admin/menu/order`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: menus,
+    ...(options || {}),
+  });
 }
 
 /** 删除菜单 DELETE /api/admin/menu/:id */

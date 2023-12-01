@@ -9,7 +9,7 @@ const { REACT_APP_ENV = 'dev', API_URL } = process.env;
 
 export default defineConfig({
   define: {
-      API_URL: API_URL,
+    API_URL: API_URL,
   },
   /**
    * @name 开启 hash 模式
@@ -155,4 +155,10 @@ export default defineConfig({
     strategy: 'normal',
   },
   requestRecord: {},
+  extraPostCSSPlugins: [
+    require('postcss-import'),
+    require('tailwindcss'),
+    require('postcss-nested'), // or require('postcss-nesting')
+    require('autoprefixer'),
+  ],
 });

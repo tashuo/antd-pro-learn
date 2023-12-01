@@ -10,9 +10,7 @@ import { errorConfig } from './requestErrorConfig';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import React from 'react';
 import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDropdown';
-import { MenuDataItem } from '@umijs/route-utils';
 import fixMenuItemIcon from './utils/fixMenuItemIcon';
-import { isNil } from 'lodash';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -131,7 +129,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       params: initialState,
       request: async (params, defaultMenuData) => {
         // 接口只返回path及children，其他字段使用routes.ts中的定义
-        console.log(defaultMenuData, initialState?.currentUser?.menus)
+        console.log(defaultMenuData, initialState?.currentUser?.menus);
         return fixMenuItemIcon(initialState?.currentUser?.menus, defaultMenuData);
       },
     },

@@ -29,34 +29,54 @@ export default [
     component: './Welcome',
   },
   {
-    path: '/test',
-    name: 'test',
-    icon: 'smile',
-    component: './Test',
-  },
-  {
     path: '/admin',
     name: 'admin',
     icon: 'crown',
-    // access: 'canAdmin',
     routes: [
-      {
-        path: '/admin/sub-page',
-        name: 'sub-page',
-        component: './Admin',
-      },
+      // {
+      //   path: '/admin/sub-page',
+      //   name: 'sub-page',
+      //   component: './Admin',
+      // },
       {
         path: '/admin/menus',
         name: 'menus',
         component: './Admin/Menu',
       },
+      {
+        path: '/admin/users',
+        name: 'users',
+        component: './Admin/User',
+      },
+      {
+        path: '/admin/roles',
+        name: 'roles',
+        component: './Admin/Role',
+      },
+      {
+        path: '/admin/permissions',
+        name: 'permissions',
+        component: './Admin/Permission',
+      },
     ],
   },
+  // {
+  //   name: 'list.table-list',
+  //   icon: 'table',
+  //   path: '/list',
+  //   component: './TableList',
+  // },
   {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
+    name: 'users',
+    icon: 'user',
+    path: '/users',
+    component: './User',
+  },
+  {
+    name: 'posts',
+    icon: 'UnorderedList',
+    path: '/posts',
+    component: './Post',
   },
   {
     path: '/',
