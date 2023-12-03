@@ -7,6 +7,7 @@ import settingDrawer from './zh-CN/settingDrawer';
 import settings from './zh-CN/settings';
 import user from './zh-CN/user';
 import post from './zh-CN/post';
+import manage from './zh-CN/manage';
 
 export default {
   'navBar.lang': '语言',
@@ -26,4 +27,5 @@ export default {
   ...component,
   ...user,
   ...post,
+  ...manage,
 };

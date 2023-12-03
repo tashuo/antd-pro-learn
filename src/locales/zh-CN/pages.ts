@@ -65,4 +65,8 @@ export default {
   'pages.searchTable.batchApproval': '批量审批',
   'pages.users.title': '用户列表',
   'pages.posts.title': '帖子列表',
+  'pages.roles.title': '角色列表',
+  'pages.roles.add': '添加角色',
+  'pages.edit': '编辑',
+  'pages.delete': '删除',
 };

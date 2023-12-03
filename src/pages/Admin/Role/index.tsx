@@ -1,28 +1,25 @@
-import { addRule, removeRule, users } from '@/services/ant-design-pro/api';
+import { addRole, getRoles, removeRole, updateRole } from '@/services/ant-design-pro/role';
 import { PlusOutlined } from '@ant-design/icons';
-import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
+import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
-  FooterToolbar,
-  ModalForm,
   PageContainer,
-  ProDescriptions,
-  ProFormText,
-  ProFormTextArea,
   ProTable,
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Drawer, message } from 'antd';
+import { Button, Popconfirm, message } from 'antd';
 import React, { useRef, useState } from 'react';
+import UpdateForm from './components/UpdateForm';
+import CreateForm from './components/CreateForm';
 
 /**
  * @en-US Add node
  * @zh-CN 添加节点
  * @param fields
  */
-const handleAdd = async (fields: API.RuleListItem) => {
+const handleAdd = async (fields: API.AddRole) => {
   const hide = message.loading('正在添加');
   try {
-    await addRule({ ...fields });
+    await addRole(fields);
     hide();
     message.success('Added successfully');
     return true;
@@ -39,44 +36,37 @@ const handleAdd = async (fields: API.RuleListItem) => {
  *
  * @param fields
  */
-// const handleUpdate = async (fields: FormValueType) => {
-//   const hide = message.loading('Configuring');
-//   try {
-//     await updateRule({
-//       name: fields.name,
-//       desc: fields.desc,
-//       key: fields.key,
-//     });
-//     hide();
-
-//     message.success('Configuration is successful');
-//     return true;
-//   } catch (error) {
-//     hide();
-//     message.error('Configuration failed, please try again!');
-//     return false;
-//   }
-// };
+const handleUpdate = async (fields: API.AddRole) => {
+  const hide = message.loading('正在更新');
+  try {
+    await updateRole(fields);
+    hide();
+    message.success('更新成功');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('更新失败，请重试');
+    return false;
+  }
+};
 
 /**
  *  Delete node
  * @zh-CN 删除节点
  *
- * @param selectedRows
+ * @param role
  */
-const handleRemove = async (selectedRows: API.RuleListItem[]) => {
+const handleRemove = async (role: API.Role) => {
   const hide = message.loading('正在删除');
-  if (!selectedRows) return true;
+  if (!role) return true;
   try {
-    await removeRule({
-      key: selectedRows.map((row) => row.key),
-    });
+    await removeRole(role.id);
     hide();
-    message.success('Deleted successfully and will refresh soon');
+    message.success('删除成功');
     return true;
   } catch (error) {
     hide();
-    message.error('Delete failed, please try again');
+    message.error('删除失败，请稍后再试');
     return false;
   }
 };
@@ -91,13 +81,10 @@ const TableList: React.FC = () => {
    * @en-US The pop-up window of the distribution update window
    * @zh-CN 分布更新窗口的弹窗
    * */
-  const [handleUpdateModalOpen] = useState<boolean>(false);
-
-  const [showDetail, setShowDetail] = useState<boolean>(false);
+  const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<API.Role>();
 
   /**
    * @en-US International configuration
@@ -105,59 +92,62 @@ const TableList: React.FC = () => {
    * */
   const intl = useIntl();
 
-  const columns: ProColumns<API.CurrentUser>[] = [
+  const columns: ProColumns<API.Role>[] = [
     {
       title: 'id',
       dataIndex: 'id',
-      sorter: true,
-    },
-    {
-      title: <FormattedMessage id="user.username" defaultMessage="username" />,
-      dataIndex: 'username',
-      tip: 'The username is the unique key',
-    },
-    {
-      title: <FormattedMessage id="user.avatar" defaultMessage="avatar" />,
-      dataIndex: 'avatar_url',
       search: false,
-      valueType: 'image',
     },
     {
-      title: <FormattedMessage id="user.created_at" defaultMessage="register time" />,
-      sorter: true,
-      dataIndex: 'created_at',
-      valueType: 'dateTime',
+      title: <FormattedMessage id="manage.role.name" defaultMessage="name" />,
+      dataIndex: 'name',
+    },
+    {
+      title: <FormattedMessage id="manage.role.slug" defaultMessage="slug" />,
+      dataIndex: 'slug',
+      tip: 'The slug is the unique key',
     },
     {
       title: <FormattedMessage id="pages.searchTable.titleOption" defaultMessage="Operating" />,
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        <a
-          key="config"
+        <Button
+          type='default'
+          size='small'
+          key="edit"
           onClick={() => {
             handleUpdateModalOpen(true);
             setCurrentRow(record);
           }}
         >
-          <FormattedMessage id="pages.searchTable.config" defaultMessage="Configuration" />
-        </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          <FormattedMessage
-            id="pages.searchTable.subscribeAlert"
-            defaultMessage="Subscribe to alerts"
-          />
-        </a>,
+          <FormattedMessage id="pages.edit" defaultMessage="edit" />
+        </Button>,
+        <Popconfirm
+          key="delete"
+          title=""
+          description="确认删除改角色?"
+          okText="删除"
+          cancelText="取消"
+          onConfirm={
+            async () => {
+              await handleRemove(record);
+              actionRef.current?.reloadAndRest?.();
+            }
+          }
+        >
+          <Button danger size='small'>Delete</Button>
+        </Popconfirm>
       ],
     },
   ];
 
   return (
     <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
+      <ProTable<API.Role, API.PageParams>
         headerTitle={intl.formatMessage({
-          id: 'pages.users.title',
-          defaultMessage: 'user list',
+          id: 'pages.roles.title',
+          defaultMessage: 'role list',
         })}
         actionRef={actionRef}
         rowKey="id"
@@ -175,112 +165,38 @@ const TableList: React.FC = () => {
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="New" />
           </Button>,
         ]}
-        request={users}
+        request={getRoles}
         columns={columns}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
       />
-      {selectedRowsState?.length > 0 && (
-        <FooterToolbar
-          extra={
-            <div>
-              <FormattedMessage id="pages.searchTable.chosen" defaultMessage="Chosen" />{' '}
-              <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
-              <FormattedMessage id="pages.searchTable.item" defaultMessage="项" />
-              &nbsp;&nbsp;
-              <span>
-                <FormattedMessage
-                  id="pages.searchTable.totalServiceCalls"
-                  defaultMessage="Total number of service calls"
-                />{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)}{' '}
-                <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万" />
-              </span>
-            </div>
-          }
-        >
-          <Button
-            onClick={async () => {
-              await handleRemove(selectedRowsState);
-              setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            <FormattedMessage
-              id="pages.searchTable.batchDeletion"
-              defaultMessage="Batch deletion"
-            />
-          </Button>
-          <Button type="primary">
-            <FormattedMessage
-              id="pages.searchTable.batchApproval"
-              defaultMessage="Batch approval"
-            />
-          </Button>
-        </FooterToolbar>
-      )}
-      <ModalForm
-        title={intl.formatMessage({
-          id: 'pages.searchTable.createForm.newRule',
-          defaultMessage: 'New rule',
-        })}
-        width="400px"
-        open={createModalOpen}
-        onOpenChange={handleModalOpen}
+      <CreateForm
+          open={createModalOpen}
+          onOpenChange={handleModalOpen}
+          onFinish={async (value) => {
+            console.log(value)
+            const success = await handleAdd(value as API.AddRole);
+            if (success) {
+              handleModalOpen(false);
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
+            }
+          }}
+      />
+      <UpdateForm
         onFinish={async (value) => {
-          const success = await handleAdd(value as API.RuleListItem);
+          const success = await handleUpdate(value);
           if (success) {
-            handleModalOpen(false);
+            handleUpdateModalOpen(false);
+            setCurrentRow(undefined);
             if (actionRef.current) {
               actionRef.current.reload();
             }
           }
         }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.searchTable.ruleName"
-                  defaultMessage="Rule name is required"
-                />
-              ),
-            },
-          ]}
-          width="md"
-          name="name"
-        />
-        <ProFormTextArea width="md" name="desc" />
-      </ModalForm>
-
-      <Drawer
-        width={600}
-        open={showDetail}
-        onClose={() => {
-          setCurrentRow(undefined);
-          setShowDetail(false);
-        }}
-        closable={false}
-      >
-        {currentRow?.name && (
-          <ProDescriptions<API.RuleListItem>
-            column={2}
-            title={currentRow?.name}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.name,
-            }}
-            columns={columns as ProDescriptionsItemProps<API.RuleListItem>[]}
-          />
-        )}
-      </Drawer>
+        onOpenChange={handleUpdateModalOpen}
+        updateModalOpen={updateModalOpen}
+        values={currentRow || {} as API.Role}
+      />
     </PageContainer>
   );
 };

@@ -132,6 +132,14 @@ declare namespace API {
     slug: string;
     name: string;
     menus?: Menu[];
+    menu_list?: [];
     permissions: Permission[];
   };
+
+  type AddRole = {
+    id?: number;
+    slug: string;
+    name: string;
+    menus: number[];
+  }
 }
